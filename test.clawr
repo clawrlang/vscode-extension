@@ -1,0 +1,112 @@
+// Clawr language test file with intentional errors for testing diagnostics
+
+const PI = 3.14159 // immutable constant
+ref r1 = /[a-z]+/i // regex is a service
+mut r2 = /[a-z]+/i // regex is a service, can only be assigned to refs
+ref invalidPointer = 0 // primitive types cannot be refs
+const s = "  "
+
+// Function declaration with pure modifier
+func add(_ a: integer, b: integer) -> integer {
+    return a + b
+}
+
+data Point {
+    // A data structure is defined by its fields.
+    x: integer
+    y: integer
+}
+
+const x = add(5, b: 3) // Valid function call
+
+const p: Point = { x: 10, y: 20 }
+ref q = copy(of: p) // Cannot assign a const to a ref
+mut r = copy(of: q) // Cannot assign a ref to a mut
+
+// Service declaration with method
+service Serv {
+    mutating:
+    func setQ() {
+        q = { x: 1, y: 2 } // Reassigning global variable from service method
+    }
+
+    data:
+    value: integer
+}
+
+// Object declaration with method
+object Counter {
+    // An object is defined by its methods.
+    func getValue() => self.value
+    func setValue() { // Error: Readonly method with no return type should not be allowed
+        self.value = 0 // Modifying object state from a readonly method should not be allowed
+    }
+
+    inheritance:
+    func create() -> Counter => { value: 0 }
+
+    mutating:
+    func increment() {
+        self.value = 1
+    }
+
+    func modifyQ() {
+        q.x = 1 // Modifying global variable should not be allowed from object
+        q = { x: 1, y: 2 } // Reassigning global variable should not be allowed from object
+    }
+
+    data:
+    value: integer
+}
+
+companion Counter {
+    func counted(to value: integer) -> Counter => { value }
+}
+
+// const counter: Counter = {value: 0} // Should not be allowed to use data initializer for an object
+const counter = Counter.counted(to: 10) // Valid object instantiation
+
+object Super {
+    func get() => 0
+
+    inheritance:
+    func init() => {}
+    func init2() {
+        self.get() // May not access self before initialization
+        self = {}
+    }
+    func init3() { return {}} // Error: Must init self or return data-literal
+    func assignSelfInit() {
+        self = {}
+        self.get() // Valid call to inherited method
+    }
+}
+
+object Sub: Super {}
+
+companion Sub {
+    // This is a static factory method that creates an instance of Sub. It is
+    // required to call the Super.init() method to initialize the base class.
+    func create() -> Sub => { Super.init() }
+    func create2() -> Sub => {}
+}
+
+const subInstance = Sub.create() // Valid instantiation of Sub using the factory method
+
+func main() {
+    counter.increment() // Mutating method call should be disallowed on a const variable
+    counter.getValue() // Readonly method call is always allowed, but warns if not assigned to a variable
+    _ = counter.getValue() // Silence unused result warning
+
+    //     print("Hello, Clawr!")
+    //
+    //     if ambiguous { // This branch can be pruned in the SST as the condition is never true, but that is an optional optimization
+    //         print("Syntax highlighting works!")
+    //     }
+    //
+    //     const result = add(5, 3)
+    //     print(result)
+}
+
+// ERROR: Unclosed string
+// const s = "Hello, unclosed string)

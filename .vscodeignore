@@ -1,0 +1,14 @@
+**/*.ts
+**/*.js.map
+**/*.d.ts
+src/
+tsconfig.json
+.eslintrc.json
+.prettierrc
+.gitignore
+.git
+node_modules/
+clawr-main/src
+clawr-main/tests
+clawr-main/.gitignore
+clawr-main/tsconfig.json

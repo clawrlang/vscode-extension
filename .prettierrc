@@ -1,0 +1,18 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "options": {
+        "tabWidth": 4
+      }
+    },
+    {
+      "files": ["*.json", "*.md", "TODO", ".prettierrc"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

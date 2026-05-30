@@ -1,0 +1,94 @@
+{
+  "name": "clawr-vscode",
+  "displayName": "Clawr Language Support",
+  "description": "VSCode extension for the Clawr programming language with syntax highlighting, diagnostics, and code navigation",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "clawrlang",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clawr/clawr-vscode"
+  },
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:clawr"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "clawr",
+        "aliases": [
+          "Clawr",
+          "clawr"
+        ],
+        "extensions": [
+          ".clawr"
+        ],
+        "configuration": "./language-clawr.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "clawr",
+        "scopeName": "source.clawr",
+        "path": "./syntaxes/clawr.tmLanguage.json"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "language": "clawr",
+        "scopes": {
+          "function": [
+            "entity.name.function.clawr"
+          ],
+          "variable": [
+            "variable.other.clawr"
+          ],
+          "parameter": [
+            "variable.parameter.clawr"
+          ],
+          "type": [
+            "entity.name.type.clawr"
+          ],
+          "property": [
+            "variable.other.property.clawr"
+          ]
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "[clawr]": {
+        "editor.defaultFormatter": "clawrlang.clawr-vscode"
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:submodule && npm run bundle",
+    "build:submodule": "cd clawr-main && npm run build",
+    "test": "npm run test:submodule && npm run test:integration",
+    "test:submodule": "cd clawr-main && npm run test",
+    "test:integration": "npm run build:submodule && node scripts/test-formatter-integration.js",
+    "bundle": "esbuild src/extension.ts --bundle --external:vscode --platform=node --target=es2020 --outfile=dist/extension.js",
+    "watch": "esbuild src/extension.ts --bundle --external:vscode --platform=node --target=es2020 --outfile=dist/extension.js --watch",
+    "dev": "npm run bundle && code --extensionDevelopmentPath=. .",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.70.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  }
+}
